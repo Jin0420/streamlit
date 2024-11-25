@@ -1,0 +1,7 @@
+$ echo "# PageSpeed-Insight_Auto" >> README.md
+$ git init
+$ git add README.md
+$ git commit -m "first commit"
+$ git branch -M main
+$ git remote add origin https://github.com/Jin0420/PageSpeed-Insight_Auto.git
+git push -u origin main
