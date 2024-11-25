@@ -32,19 +32,21 @@ def get_pagespeed_insights(url, api_key):
             'seo': result['lighthouseResult']['categories']['seo']['score'] * 100
         }
     except Exception as e:
-        st.error(f"分析 {url} 時發生錯誤: {str(e)}")
+        st.error(f"查詢 {url} 時發生錯誤: {str(e)}")
         return None
 
 def main():
-    st.set_page_config(page_title="PageSpeed Insights 分析工具", layout="wide")
+    st.set_page_config(page_title="PageSpeed Insights 查詢工具", layout="wide")
     
-    st.title("PageSpeed Insights 分析工具")
+    st.title("PageSpeed Insights 查詢工具")
     
     # 初始化 session state
     if 'results' not in st.session_state:
         st.session_state.results = None
     if 'analysis_complete' not in st.session_state:
         st.session_state.analysis_complete = False
+    if 'sheet_names' not in st.session_state:
+        st.session_state.sheet_names = None
     
     # API Key 輸入
     api_key = st.text_input("請輸入 Google PageSpeed Insights API Key", 
@@ -54,16 +56,39 @@ def main():
     # 檔案上傳
     uploaded_file = st.file_uploader("上傳包含網址的 Excel 檔案", type=['xlsx', 'xls'])
     
+    # 如果有上傳檔案，讀取工作表名稱
+    if uploaded_file:
+        try:
+            # 讀取所有工作表名稱
+            excel_file = pd.ExcelFile(uploaded_file)
+            st.session_state.sheet_names = excel_file.sheet_names
+            
+            # 讓用戶選擇工作表
+            selected_sheet = st.selectbox(
+                "請選擇要查詢的工作表",
+                st.session_state.sheet_names
+            )
+            
+            # 預覽選擇的工作表內容
+            preview_df = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
+            st.write("工作表預覽：")
+            st.dataframe(preview_df.head())
+            
+        except Exception as e:
+            st.error(f"讀取 Excel 檔案時發生錯誤: {str(e)}")
+            return
+    
     # 分析按鈕
-    analyze_button = st.button("開始分析")
+    analyze_button = st.button("開始查詢")
     
     if analyze_button and uploaded_file and api_key:
         try:
-            df = pd.read_excel(uploaded_file)
+            # 讀取選擇的工作表
+            df = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
             
             # 確保數據是單一欄位的 URL 列表
             if len(df.columns) > 1:
-                st.warning("請確保 Excel 檔案只包含一個欄位的 URL 列表")
+                st.warning("請確保工作表只包含一個欄位的 URL 列表")
                 return
                 
             urls = df[df.columns[0]].dropna().tolist()
@@ -94,7 +119,7 @@ def main():
                 # 避免 API 請求過於頻繁
                 time.sleep(1)
             
-            status_text.text("分析完成！")
+            status_text.text("查詢完成！")
             
             # 儲存結果到 session state
             st.session_state.results = results
@@ -115,7 +140,7 @@ def main():
         st.download_button(
             label="下載 CSV 檔案",
             data=csv,
-            file_name="pagespeed_results.csv",
+            file_name=f"pagespeed_results_{selected_sheet}.csv",
             mime="text/csv"
         )
 
@@ -124,8 +149,8 @@ def main():
         if st.button("重新開始"):
             st.session_state.results = None
             st.session_state.analysis_complete = False
+            st.session_state.sheet_names = None
             st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
-
