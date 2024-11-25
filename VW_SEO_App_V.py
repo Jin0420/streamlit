@@ -102,7 +102,7 @@ def main():
             
             results = []
             for i, url in enumerate(urls):
-                status_text.text(f"正在分析 {url}")
+                status_text.text(f"正在查詢 {url}")
                 result = get_pagespeed_insights(url, api_key)
                 if result:
                     results.append(result)
