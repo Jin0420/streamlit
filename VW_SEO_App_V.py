@@ -117,7 +117,7 @@ def main():
                     results_placeholder.dataframe(results_df)
                 
                 # 避免 API 請求過於頻繁
-                time.sleep(1)
+                # time.sleep(1)
             
             status_text.text("查詢完成！")
             
