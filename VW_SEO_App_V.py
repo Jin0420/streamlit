@@ -51,7 +51,7 @@ def main():
     # API Key 輸入
     api_key = st.text_input("請輸入 Google PageSpeed Insights API Key", 
                            type="password",
-                           help="如果沒有 API Key，請前往 https://developers.google.com/speed/docs/insights/v5/get-started?hl=zh-tw 取得 API 金鑰")
+                           help="如果沒有 API Key，請前往 https://developers.google.com/speed/docs/insights/v5/get-started?hl=zh-tw 取得")
     
     # 檔案上傳
     uploaded_file = st.file_uploader("上傳包含網址的 Excel 檔案", type=['xlsx', 'xls'])
