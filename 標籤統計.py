@@ -32,7 +32,7 @@ def process_tags(df, tag_column):
 st.title('標籤數量統計器')
 
 # 添加說明
-st.write('這個應用程式可以幫助你統計Excel或CSV檔案中的標籤出現次數。')
+st.write('這個應用程式可以幫助你統計Excel或CSV檔案中各標籤的出現次數。')
 st.write('請上傳一個包含標籤欄位的檔案。')
 
 # 檔案上傳器 - 新增 CSV 支援
