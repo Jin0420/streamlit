@@ -9,6 +9,46 @@ import pandas as pd
 import requests
 import time
 from io import BytesIO
+import io
+import hashlib
+
+# 設定密碼（這裡使用雜湊值以增加安全性）
+CORRECT_PASSWORD_HASH = "70eded5c719db84ae23a66c1dde35dff5836eabf"  # password123 的 SHA-1 雜湊值
+
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """檢查輸入的密碼是否正確"""
+        input_password = st.session_state["password"]
+        if hashlib.sha1(input_password.encode()).hexdigest() == CORRECT_PASSWORD_HASH:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # 清除密碼
+        else:
+            st.session_state["password_correct"] = False
+
+    # 首次訪問或密碼錯誤時顯示輸入表單
+    if "password_correct" not in st.session_state:
+        st.text_input(
+            "請輸入密碼", 
+            type="password", 
+            on_change=password_entered, 
+            key="password"
+        )
+        return False
+    
+    # 密碼錯誤時顯示錯誤訊息
+    elif not st.session_state["password_correct"]:
+        st.text_input(
+            "請輸入密碼", 
+            type="password", 
+            on_change=password_entered, 
+            key="password"
+        )
+        st.error("密碼錯誤，請重試")
+        return False
+    
+    return True
 
 def get_pagespeed_insights(url, api_key):
     """獲取 PageSpeed Insights 數據"""
