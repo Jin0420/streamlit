@@ -9,7 +9,6 @@ import pandas as pd
 import requests
 import time
 from io import BytesIO
-import io
 import hashlib
 
 # 設定密碼（這裡使用雜湊值以增加安全性）
@@ -72,13 +71,17 @@ def get_pagespeed_insights(url, api_key):
             'seo': result['lighthouseResult']['categories']['seo']['score'] * 100
         }
     except Exception as e:
-        st.error(f"查詢 {url} 時發生錯誤: {str(e)}")
+        st.error(f"分析 {url} 時發生錯誤: {str(e)}")
         return None
 
 def main():
-    st.set_page_config(page_title="PageSpeed Insights 查詢工具", layout="wide")
+    st.set_page_config(page_title="PageSpeed Insights 自動查詢工具", layout="wide")
     
-    st.title("PageSpeed Insights 查詢工具")
+    st.title("PageSpeed Insights 自動查詢工具")
+    
+    # 檢查密碼
+    if not check_password():
+        return
     
     # 初始化 session state
     if 'results' not in st.session_state:
@@ -105,7 +108,7 @@ def main():
             
             # 讓用戶選擇工作表
             selected_sheet = st.selectbox(
-                "請選擇要查詢的工作表",
+                "請選擇要分析的工作表",
                 st.session_state.sheet_names
             )
             
@@ -119,7 +122,7 @@ def main():
             return
     
     # 分析按鈕
-    analyze_button = st.button("開始查詢")
+    analyze_button = st.button("開始分析")
     
     if analyze_button and uploaded_file and api_key:
         try:
@@ -142,7 +145,7 @@ def main():
             
             results = []
             for i, url in enumerate(urls):
-                status_text.text(f"正在查詢 {url}")
+                status_text.text(f"正在分析 {url}")
                 result = get_pagespeed_insights(url, api_key)
                 if result:
                     results.append(result)
@@ -157,9 +160,9 @@ def main():
                     results_placeholder.dataframe(results_df)
                 
                 # 避免 API 請求過於頻繁
-                # time.sleep(1)
+                time.sleep(1)
             
-            status_text.text("查詢完成！")
+            status_text.text("分析完成！")
             
             # 儲存結果到 session state
             st.session_state.results = results
