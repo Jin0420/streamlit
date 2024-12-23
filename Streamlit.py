@@ -54,6 +54,7 @@ def get_pagespeed_insights(url, api_key):
 def pagespeed_tool():
     """PageSpeed Insights 工具介面"""
     st.header("PageSpeed Insights 自動查詢工具")
+    st.write('這個工具可以幫助你自動查詢多個網址的 PageSpeed Insights 效能指標。')
     
     # 初始化 session state
     if 'results' not in st.session_state:
@@ -137,7 +138,7 @@ def tag_statistics_tool():
     """標籤統計工具介面"""
     st.header("標籤次數統計工具")
     
-    st.write('這個工具可以幫助你統計Excel或CSV檔案中的標籤出現次數。')
+    st.write('這個工具可以幫助你統計標籤出現的次數。')
     st.write('請上傳一個包含標籤欄位的檔案。')
     
     uploaded_file = st.file_uploader("選擇檔案", type=['xlsx', 'xls', 'csv'], key="tags_uploader")
