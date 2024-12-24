@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import streamlit as st
 import pandas as pd
 import requests
@@ -18,59 +12,26 @@ ALLOWED_EMAILS = [
 
 def check_streamlit_user():
     """檢查目前登入的 Streamlit 帳號是否有權限"""
-    # 檢查是否登入
-    if not st.session_state.get('user'):
-        try:
-            user = st.experimental_user
-            if user is not None and user.email:
-                st.session_state['user'] = user
-            else:
-                st.error("請先登入 Streamlit 帳號")
-                st.write("請點擊右上角的登入按鈕進行登入")
-                st.stop()
-        except:
-            st.error("無法驗證用戶身份")
-            st.write("請確保你已登入 Streamlit 帳號")
+    if 'user' not in st.session_state:
+        st.session_state['user'] = None
+    
+    try:
+        user = st.experimental_user  # 如果已棄用，請參考最新文檔更換方式
+        if user and user.email:
+            st.session_state['user'] = user
+        else:
+            st.error("請先登入 Streamlit 帳號")
             st.stop()
+    except AttributeError as e:
+        st.error(f"無法驗證用戶身份，錯誤原因: {e}")
+        st.stop()
     
     # 檢查是否在允許清單中
     if st.session_state['user'].email not in ALLOWED_EMAILS:
         st.error("抱歉，你的帳號沒有使用此應用程式的權限")
-        st.write("如需使用權限，請聯繫管理員")
         st.stop()
-    
     return True
-    
-def get_pagespeed_insights(url, api_key):
-    """獲取 PageSpeed Insights 數據"""
-    api_url = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
-    params = {
-        'url': url,
-        'key': api_key,
-        'strategy': 'mobile',
-        'category': ['accessibility', 'best-practices', 'performance', 'seo']
-    }
-    
-    try:
-        response = requests.get(api_url, params=params)
-        result = response.json()
-        
-        return {
-            'url': url,
-            'performance': result['lighthouseResult']['categories']['performance']['score'] * 100,
-            'accessibility': result['lighthouseResult']['categories']['accessibility']['score'] * 100,
-            'best_practices': result['lighthouseResult']['categories']['best-practices']['score'] * 100,
-            'seo': result['lighthouseResult']['categories']['seo']['score'] * 100
-        }
-    except Exception as e:
-        st.error(f"分析 {url} 時發生錯誤: {str(e)}")
-        return None
 
-def main():
-    st.set_page_config(page_title="PageSpeed Insights 自動查詢工具", layout="wide")
-    
-    st.title("PageSpeed Insights 自動查詢工具")
-    
 def main():
     st.set_page_config(page_title="PageSpeed Insights 分析工具", layout="wide")
     
@@ -78,7 +39,7 @@ def main():
     check_streamlit_user()
     
     # 顯示歡迎訊息
-    st.write(f"### 歡迎，{st.experimental_user.email}")
+    st.write(f"### 歡迎，{st.session_state['user'].email}")
     
     # 原有的 PageSpeed Insights 分析功能
     st.title("PageSpeed Insights 分析工具")
@@ -197,4 +158,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
