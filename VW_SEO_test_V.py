@@ -9,28 +9,26 @@ ALLOWED_EMAILS = [
     'jin420317@gmail.com'
 ]
 
-def login():
-    """用戶登入邏輯，返回是否成功登錄"""
-    if 'logged_in' not in st.session_state:
-        st.session_state['logged_in'] = False
+def check_user_authentication():
+    """檢查當前使用者是否已登入並且在授權清單內"""
+    try:
+        user = st.experimental_user  # 獲取當前登入用戶信息
+        if user is None or user.email is None:
+            st.error("請先登入 Streamlit 帳號")
+            st.write("請點擊右上角的登入按鈕進行登入")
+            st.stop()
 
-    if not st.session_state['logged_in']:
-        # 提示用戶輸入 Streamlit 帳號
-        email = st.text_input("請輸入您的 Streamlit 帳號電子郵件", key="login_email")
-        login_button = st.button("登入")
-        
-        if login_button:
-            if email in ALLOWED_EMAILS:
-                st.session_state['logged_in'] = True
-                st.session_state['user_email'] = email
-                st.success(f"登入成功！歡迎，{email}")
-            else:
-                st.error("此帳號無法使用此應用程式，請聯繫管理員")
-                return False
-    else:
-        st.write(f"### 已登入帳號：{st.session_state['user_email']}")
-    
-    return st.session_state['logged_in']
+        if user.email not in ALLOWED_EMAILS:
+            st.error("抱歉，你的帳號沒有使用此應用程式的權限")
+            st.write("如需使用權限，請聯繫管理員")
+            st.stop()
+
+        # 顯示歡迎訊息
+        st.success(f"歡迎，{user.email}！")
+        return user.email
+    except Exception as e:
+        st.error(f"檢查用戶身份時發生錯誤: {str(e)}")
+        st.stop()
 
 def get_pagespeed_insights(url, api_key):
     """獲取 PageSpeed Insights 數據"""
@@ -59,9 +57,8 @@ def main():
     st.set_page_config(page_title="PageSpeed Insights 自動查詢工具", layout="wide")
     st.title("PageSpeed Insights 自動查詢工具")
 
-    # 檢查 Streamlit 登入和權限
-    if not login():
-        return  # 未登錄，直接退出主程序
+    # 檢查使用者是否已登入且有權限
+    user_email = check_user_authentication()
 
     # 初始化 session state
     if 'results' not in st.session_state:
