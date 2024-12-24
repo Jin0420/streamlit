@@ -12,7 +12,8 @@ from io import BytesIO
 
 # 允許的 Streamlit 帳號列表
 ALLOWED_EMAILS = [
-    'jin6622345@yahoo.com.tw'
+    'jin6622345@yahoo.com.tw',
+    'jin420317@gmail.com'
 ]
 
 def check_streamlit_user():
