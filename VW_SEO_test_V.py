@@ -18,21 +18,29 @@ ALLOWED_EMAILS = [
 
 def check_streamlit_user():
     """檢查目前登入的 Streamlit 帳號是否有權限"""
-    # 獲取當前用戶
-    user = st.experimental_user
-
     # 檢查是否登入
-    if not user.email:
-        st.error("請先登入 Streamlit 帳號")
-        st.stop()
+    if not st.session_state.get('user'):
+        try:
+            user = st.experimental_user
+            if user is not None and user.email:
+                st.session_state['user'] = user
+            else:
+                st.error("請先登入 Streamlit 帳號")
+                st.write("請點擊右上角的登入按鈕進行登入")
+                st.stop()
+        except:
+            st.error("無法驗證用戶身份")
+            st.write("請確保你已登入 Streamlit 帳號")
+            st.stop()
     
     # 檢查是否在允許清單中
-    if user.email not in ALLOWED_EMAILS:
+    if st.session_state['user'].email not in ALLOWED_EMAILS:
         st.error("抱歉，你的帳號沒有使用此應用程式的權限")
         st.write("如需使用權限，請聯繫管理員")
         st.stop()
     
     return True
+    
 def get_pagespeed_insights(url, api_key):
     """獲取 PageSpeed Insights 數據"""
     api_url = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
