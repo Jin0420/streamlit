@@ -1,3 +1,9 @@
-streamlit
-pandas
-openpyxl
+streamlit>=1.38
+pandas>=2.0
+openpyxl>=3.1
+selenium>=4.20
+undetected-chromedriver>=3.5.5
+requests>=2.31
+Pillow>=10.0
+psutil>=5.9
+xlrd>=2.0
